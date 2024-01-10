@@ -1,3 +1,3 @@
-https://{HOST}/install-extentions?url=https://saranann.github.io/MisskeyPlugins/json/flexible_user_mute_plugin.is.json&hash=aa9e9af24f723fca71de55e8f6eed8cf27f8a2a169bbd0bd64557f8c301ddc59f00f9e11b20dcb633e32e148ca9fa88b8a588db89334d405f4aeb148db3eec4e  json/flexible_user_mute_plugin.is.json
-https://{HOST}/install-extentions?url=https://saranann.github.io/MisskeyPlugins/json/hide_channel_note_plugin.is.json&hash=d0373913182eb1a3c08d002020d81fc8e49691cd71f0438c9442bdd51e9c766e0e864b52359a8d9c6f7308a55c40bae918f91e231ed0c88ef17501f6cad2c3e2  json/hide_channel_note_plugin.is.json
+https://{HOST}/install-extentions?url=https://saranann.github.io/MisskeyPlugins/json/flexible_user_mute_plugin.is.json&hash=dbdf80635d40f7387d93d307368c3a2d92c0c0e08e2a0f4f8509a065eb8d8b9fc8ed542758215ac750a700a21f24fdc33a88a494085323a7748bed90f9d4c34e  src/flexible_user_mute_plugin.is
+https://{HOST}/install-extentions?url=https://saranann.github.io/MisskeyPlugins/json/hide_channel_note_plugin.is.json&hash=448926c3a182d327f7e5c907a9dc1c71dd486a96b5be2f74c945f34bf07c99645cd9b24d434469c6a0c30dce2334ef1569f4745a0e13fcd0274c647f46f13e55  src/hide_channel_note_plugin.is
 
