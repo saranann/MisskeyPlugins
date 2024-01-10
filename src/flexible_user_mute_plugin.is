@@ -1,0 +1,46 @@
+/// @ 0.16.0
+### {
+    name: "flexible user mute",
+    id: "b3b5c48d-d0a0-496c-86ff-f40b135359b9",
+    version: "1.0.0",
+    author: "@yamada_20020924@voskey.icalo.net",
+    description: "User mute plugin with flexible time settings",
+    permissions: ["write:mutes"],
+    config: {
+        customizedMutePeriodList: {
+            type: "string",
+            label: "",
+            description: "Describe the mute period in JSON format",
+            default: "[{\"title\":\"30 days\",\"period\":2592000000},{\"title\":\"90 days\",\"period\":7776000000}]"
+        }
+    }
+}
+
+let mutePeriodList = Json:parse(Plugin:config.customizedMutePeriodList)
+
+//JSON check
+var isOk = true
+if (Core:type(mutePeriodList)=="error") {
+    isOk = false
+    Mk:dialog("JSON PARSE ERROR", "Malformed JSON", "error")
+}
+
+if (isOk) {
+    each (let mutePeriodPair, mutePeriodList) {
+        if (Core:type(mutePeriodPair.title)=="str"&&Core:type(mutePeriodPair.period)=="num") {
+            Plugin:register_user_action(mutePeriodPair.title, @(user){
+                let nowUnixtime = Date:now()
+                let result = Mk:api("mute/create", {userId: user.id, expiresAt: nowUnixtime+mutePeriodPair.period})
+                if (Core:type(result)=="error") {
+                    Mk:dialog(result.name, Json:stringify(result.info), "error")
+                }
+                else {
+                    Mk:dialog("Succeeded", "This user has been muted", "info")
+                }
+            })
+        }
+        else {
+            Mk:dialog("OBJECT VALUE ERROR", "", "error")
+        }
+    }
+}

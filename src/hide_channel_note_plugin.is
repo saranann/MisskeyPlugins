@@ -1,0 +1,45 @@
+/// @ 0.16.0
+### {
+    name: "特定のチャンネルのノートを隠すプラグイン",
+    id: "54102f51-8589-42a7-ab86-f36f65e4fc39",
+    version: "1.0.0",
+    author: "@yamada_20020924@voskey.icalo.net",
+    description: "条件に従ってチャンネル投稿ノートを隠します",
+    permissions: [],
+    config: {
+        channelIdList: {
+            type: "string",
+            label: "隠すチャンネルIDのリスト",
+            description: "JSON形式でチャンネルIDを記述すると、それに従ってチャンネルに関連するノートを隠します",
+            default: "[]"
+        }
+    }
+}
+
+@callback(note){
+    //多分ないけど確認
+    if (note==null) return null
+    if (channelIdList.incl(note.channelId)) return null
+    //renoteと引用
+    if (note.renote==null) return note
+    if (callback(note.renote)==null) return null
+    else return note
+}
+
+let channelIdList = Json:parse(Plugin:config.channelIdList)
+
+//JSONチェック
+var isOk = true
+if (Core:type(channelIdList)=="error") {
+    isOk = false
+    Mk:dialog("JSON PARSE ERROR", "不正な形式のカスタマイズリスト", "error")
+}
+if (Core:type(channelIdList)!="arr") {
+    isOk = false
+    Mk:dialog("JSON IS NOT ARRAY", "不正な形式のカスタマイズリスト", "error")
+}
+if (isOk) {
+    Plugin:register_note_view_interruptor(
+        callback
+    )
+}
