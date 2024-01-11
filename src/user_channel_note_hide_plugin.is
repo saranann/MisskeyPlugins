@@ -1,0 +1,23 @@
+/// @ 0.16.0
+### {
+    name: "user channel note hide plugin",
+    id: "9808f97b-f61d-4f81-857e-dae5d32ba8b6",
+    version: "1.0.0",
+    author: "@yamada_20020924@voskey.icalo.net",
+    description: "指定したユーザーの指定したチャンネルでのノートを非表示にするプラグイン。",
+    permissions: [],
+    config: {
+        pairsOfUsersAndChannelLists: {
+            type: "string",
+            label: "条件のJSON",
+            description: "JSON形式で非表示にする条件を記述します。",
+            default: "{}"
+        }
+    }
+}
+
+let pairsOfUsersAndChannelLists = Json:parse(Plugin:config.pairsOfUsersAndChannelLists)
+
+@callback(note){if (Obj:has(pairsOfUsersAndChannelLists, note.userId)&&pairsOfUsersAndChannelLists[note.userId].incl(note.channelId)) null else note}
+
+if (Core:type(pairsOfUsersAndChannelLists)=="obj"&&Obj:vals(pairsOfUsersAndChannelLists).reduce(@(a,val){a&&(if (Core:type(val)=="arr") val.reduce(@(a,val){a&&(Core:type(val)=="str"||val==null)},true) else false)},true)) Plugin:register_note_view_interruptor(callback) else Mk:dialog("CONFIG PARSE ERROR", "設定されたJSON形式が不正です。", "error")
