@@ -1,0 +1,75 @@
+/// @ 0.16.0
+### {
+    name: "下書きプラグイン",
+    id: "36f1f85b-24af-4eec-b4fd-91c2bd511cc3",
+    version: "1.0.0",
+    author: "@yamada_20020924@voskey.icalo.net",
+    description: "下書きの保存、読み込みをできる。",
+    permissions: ["write:account"]
+}
+
+//レジストリのドメインは自動で生成されるっぽい？
+//定数
+let registryKey = "draft_plugin"
+let registryScope = ["client", "plugin", "yamada_20020924"]
+let getRegistryParms = {key: registryKey, scope: registryScope}
+let setRegistryParms = Obj:copy(getRegistryParms)
+setRegistryParms.value = {}
+
+//レジストリがない場合、作成する。
+let result = Mk:api("i/registry/get", getRegistryParms)
+if (Core:type(result)=="error"&&result.info.id=="ac3ed68a-62f0-422b-a7bc-d5e09e8f6a6a") Mk:api("i/registry/set", setRegistryParms)
+
+@saveDraft(form){
+    //下書きデータを取得
+    let result = Mk:api("i/registry/get", getRegistryParms)
+    //データを識別するIDを生成
+    let setKey = Util:uuid()
+    //保存するデータを定義
+    let data = form
+    //データを追加
+    setRegistryParms.value[setKey] = data
+    //下書きデータの上書き
+    Mk:api("i/registry/set", setRegistryParms)
+}
+
+@showDraft(){
+    //下書きデータを取得
+    let result = Mk:api("i/registry/get", getRegistryParms)
+    let resultKvs = Obj:kvs(result)
+    var data = resultKvs.map(@(resultvalue){`{resultvalue[0]}{Str:lf}{Json:stringify(resultvalue[1])}`}).join(`{Str:lf}{Str:lf}`)
+    Mk:dialog(null, data, "info")
+}
+
+@loadDraft(form, update){
+    //下書きデータの取得
+    let result = Mk:api("i/registry/get", getRegistryParms)
+    let getKey = readline("下書き呼び出しkeyを入力")
+    if (getKey=="") return null
+    if (Core:type(getKey)!="str"||result[getKey]==null) return Mk:dialog("DATA KEY ERROR", `呼び出しkeyが不正です。{Str:lf}適切な鍵を入力してください。`, "error")
+    //読み込むかチェック
+    if (form.cw!=null||form.text==null) if (!Mk:confirm("下書きを読み込みますか？", "現在の入力状態は破棄されます。", "question")) return null
+    let draftFormPairs = Obj:kvs(result[getKey])
+    draftFormPairs.map(@(draftFormPair){update(draftFormPair[0], draftFormPair[1])})
+    //下書きデータの削除
+    let data = Obj:kvs(result).filter(@(pair){pair[0]!=getKey}).reduce(@(a,v){
+        a[v[0]]=v[1]
+        a
+    },{})
+    //削除したデータをセット
+    setRegistryParms.value = data
+    Mk:api("i/registry/set", setRegistryParms)
+}
+
+@clearDraft(){
+    if (Mk:confirm("本当に削除しますか？", "この作業を取り消すことはできません。", "question")) {
+        setRegistryParms.value = {}
+        Mk:api("i/registry/set", setRegistryParms)
+        Mk:dialog("完了通知", "削除しました", "success")
+    }
+}
+
+Plugin:register_post_form_action("下書きを保存", saveDraft)
+Plugin:register_post_form_action("下書き一覧", showDraft)
+Plugin:register_post_form_action("下書きを読み込み", loadDraft)
+Plugin:register_post_form_action("下書きを全削除", clearDraft)
