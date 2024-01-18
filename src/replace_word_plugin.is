@@ -1,0 +1,47 @@
+/// @ 0.16.0
+### {
+    name: "ReplaceWordPlugin",
+    id: "ca4b5cf2-b6f1-4ca7-af32-f088824690c3",
+    version: "1.0.0",
+    author: "@yamada_20020924@voskey.icalo.net",
+    description: "ワードを投稿時に置換するプラグイン",
+    config: {
+        wordPairList: {
+            type: "string",
+            label: "word pair list",
+            description: "JSON形式でワードを置換するペアを書く。",
+            default: "[{\"pattern\":\"Twitter\",\"replacement\":\"X\"}]"
+        }
+    }
+}
+
+let wordPairList = Json:parse(Plugin:config.wordPairList)
+let isOk = Core:type(wordPairList)=="arr" && wordPairList.reduce(@(accumulator,wordPair){accumulator&&Core:type(wordPair)=="obj"&&Core:type(wordPair.pattern)=="str"&&Core:type(wordPair.replacement)=="str"},true)
+
+@removeNullValues(obj){
+    let result = {}
+    let keys = Obj:keys(obj)
+    keys.map(@(key){if (obj[key]!=null) result[key] = if (Core:type(obj[key])=="obj") removeNullValues(obj[key]) else obj[key]})
+    result
+}
+
+@replaceWords(text){
+    wordPairList.reduce(@(accumulator,wordPair){accumulator.replace(wordPair.pattern,wordPair.replacement)},text)
+}
+
+@tryReplaceWords(obj,key){
+    if (obj[key]!=null) obj[key] = replaceWords(obj[key])
+}
+
+@callback(note){
+    tryReplaceWords(note, "cw")
+    tryReplaceWords(note, "text")
+    return removeNullValues(note)
+}
+
+if (isOk) {
+    Plugin:register_note_post_interruptor(callback)
+}
+else {
+    Mk:dialog("word pair list error", "word pair listの指定が不正です。")
+}
