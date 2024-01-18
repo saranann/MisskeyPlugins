@@ -43,5 +43,5 @@ if (isOk) {
     Plugin:register_note_post_interruptor(callback)
 }
 else {
-    Mk:dialog("word pair list error", "word pair listの指定が不正です。")
+    Mk:dialog("word pair list error", "word pair listの指定が不正です。", "error")
 }
