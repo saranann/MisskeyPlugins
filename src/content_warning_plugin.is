@@ -1,0 +1,21 @@
+/// @ 0.16.0
+### {
+    name: "簡易CWプログラミング",
+    id: "832fd392-a2a7-4c9c-87d9-f7285e93e242",
+    version: "1.0.0",
+    author: "@yamada_20020924@voskey.icalo.net",
+    description: "CWの警告を簡単につけられるようにしたいです",
+    config: {
+        labelList: {
+            type: "string",
+            label: "ラベル",
+            description: "JSONのリスト形式",
+            default: "[\":sensitive:(性的なコンテンツ)\"]"
+        }
+    }
+}
+
+let labelList=Json:parse(Plugin:config.labelList)
+let isOk=Core:type(labelList)=="arr"&&labelList.reduce(@(accumulator,label){accumulator&&Core:type(label)=="str"},true)
+
+if (isOk) {labelList.map(@(label){Plugin:register_post_form_action(label,@(form,update){update("cw",label)})})} else {Mk:dialog("PARSE ERROR","設定の形式が不正です。","error")}
